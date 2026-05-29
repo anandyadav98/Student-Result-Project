@@ -279,6 +279,7 @@ app.delete('/api/students/:roll', (req, res) => {
   }
 });
 
+app.use(express.static('public'));
 app.listen(PORT, () => {
   console.log(`Student Result Management server running at http://localhost:${PORT}`);
 });
