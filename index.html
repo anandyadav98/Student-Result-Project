@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Result Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Login Gate -->
+  <div id="login-gate" class="login-gate">
+    <div id="serverWarning" class="server-warning hidden">
+      <strong>Server not reachable.</strong> Run <code>npm start</code> and open <code>http://localhost:3000</code> in your browser (don't open the HTML file directly).
+    </div>
+    <div class="login-container">
+      <div class="login-brand">
+        <div class="brand-icon">📚</div>
+        <h1>Student Result Management</h1>
+        <p>XML-Based Result Display • Roll Number Lookup</p>
+      </div>
+      <div class="login-tabs">
+        <button type="button" class="login-tab active" data-tab="student">Student Login</button>
+        <button type="button" class="login-tab" data-tab="admin">Admin Login</button>
+      </div>
+      <form id="studentLoginForm" class="login-form active">
+        <div class="form-group">
+          <label for="studentRoll">Roll Number</label>
+          <input type="text" id="studentRoll" placeholder="e.g., 2401330130141" autocomplete="off" required>
+        </div>
+          <div class="form-group">
+            <label for="studentPassword">Password</label>
+            <input type="password" id="studentPassword" placeholder="Enter password" required>
+          </div>
+          
+        
+        <button type="submit" class="btn btn-primary btn-block">View My Results</button>
+        <p id="studentLoginError" class="login-error hidden"></p>
+      </form>
+      <form id="adminLoginForm" class="login-form">
+        <div class="form-group">
+          <label for="adminUser">Username</label>
+          <input type="text" id="adminUser" placeholder="admin" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="adminPass">Password</label>
+          <input type="password" id="adminPass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Admin Login</button>
+        <p id="adminLoginError" class="login-error hidden"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main App (shown after login) -->
+  <div id="app-main" class="app-main hidden">
+    <nav class="navbar">
+      <a href="#" class="nav-brand" data-page="dashboard">Student Results</a>
+      <div class="nav-links">
+        <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-page="search">Search</a>
+        <a href="#" class="nav-link nav-admin" data-page="students">All Students</a>
+        <a href="#" class="nav-link nav-admin" data-page="add">Add Student</a>
+        <span class="nav-user" id="navUser"></span>
+        <button type="button" class="btn btn-small btn-ghost" id="logoutBtn">Logout</button>
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Dashboard Page -->
+      <main id="page-dashboard" class="page active">
+        <header class="page-header">
+          <h1>Dashboard</h1>
+          <p class="subtitle">XML-Based Student Result Management System</p>
+        </header>
+        <section class="dashboard-grid">
+          <div class="dashboard-card">
+            <span class="card-icon">🔍</span>
+            <h3>Search Results</h3>
+            <p>Look up student results by roll number</p>
+            <a href="#" class="btn btn-primary" data-page="search">Search Now</a>
+          </div>
+          <div class="dashboard-card nav-admin">
+            <span class="card-icon">📋</span>
+            <h3>All Students</h3>
+            <p>View complete list of enrolled students</p>
+            <a href="#" class="btn btn-secondary" data-page="students">View List</a>
+          </div>
+          <div class="dashboard-card nav-admin">
+            <span class="card-icon">➕</span>
+            <h3>Add Student</h3>
+            <p>Register a new student with results</p>
+            <a href="#" class="btn btn-secondary" data-page="add">Add Student</a>
+          </div>
+        </section>
+        <section class="quick-search">
+          <h2>Quick Search</h2>
+          <div class="search-box">
+            <input type="text" id="dashboardSearch" placeholder="Enter roll number..." autocomplete="off">
+            <button type="button" id="dashboardSearchBtn">Search</button>
+          </div>
+          <p id="dashboardStats" class="hint">—</p>
+        </section>
+      </main>
+
+      <!-- Search Page -->
+      <main id="page-search" class="page">
+        <header class="page-header">
+          <h1>Search Results</h1>
+          <p class="subtitle">Look up student results by roll number</p>
+        </header>
+        <section class="search-section">
+          <label for="rollNumber">Enter Roll Number</label>
+          <div class="search-box">
+            <input type="text" id="rollNumber" placeholder="e.g., 2401330130141" autocomplete="off">
+            <button type="button" id="searchBtn">Search</button>
+          </div>
+        </section>
+        <section id="resultSection" class="result-section hidden">
+          <div class="result-card">
+            <div class="result-actions nav-admin">
+              <button type="button" class="btn btn-small" id="editResultBtn">Edit</button>
+              <button type="button" class="btn btn-small btn-danger" id="deleteResultBtn">Delete</button>
+            </div>
+            <div class="student-info">
+              <h2 id="studentName">—</h2>
+              <div class="info-grid">
+                <span class="info-item"><strong>Roll No:</strong> <span id="displayRoll">—</span></span>
+                <span class="info-item"><strong>Course:</strong> <span id="course">—</span></span>
+                <span class="info-item"><strong>Semester:</strong> <span id="semester">—</span></span>
+              </div>
+            </div>
+            <div class="marks-table-wrapper">
+              <table class="marks-table">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Marks Obtained</th>
+                    <th>Maximum</th>
+                    <th>Percentage</th>
+                  </tr>
+                </thead>
+                <tbody id="marksBody"></tbody>
+              </table>
+            </div>
+            <div class="summary">
+              <div class="total-row">
+                <span>Total</span>
+                <span id="totalMarks">—</span>
+                <span id="maxTotal">—</span>
+                <span id="percentage">—</span>
+              </div>
+              <p class="grade" id="grade">—</p>
+            </div>
+          </div>
+        </section>
+        <section id="errorSection" class="error-section hidden">
+          <div class="error-card">
+            <span class="error-icon">⚠</span>
+            <h3>No Result Found</h3>
+            <p id="errorMessage">Please check the roll number and try again.</p>
+          </div>
+        </section>
+      </main>
+
+      <!-- All Students Page -->
+       <div id="subjectsContainer"></div>
+      <main id="page-students" class="page nav-admin">
+        <header class="page-header">
+          <h1>All Students</h1>
+          <p class="subtitle">Complete list of enrolled students and their results</p>
+        </header>
+        <section class="students-section">
+          <div id="studentsLoading" class="loading-section">
+            <div class="loader"></div>
+            <p>Loading students...</p>
+          </div>
+          <div id="studentsList" class="students-list hidden"></div>
+        </section>
+      </main>
+
+      <!-- Add/Edit Student Page -->
+      <main id="page-add" class="page nav-admin">
+        <header class="page-header">
+          <h1 id="addEditTitle">Add Student</h1>
+          <p class="subtitle" id="addEditSubtitle">Register a new student with subject-wise marks</p>
+        </header>
+        <section class="form-section">
+          <form id="studentForm" class="student-form">
+            <div class="form-group">
+              <label for="formRoll">Roll Number *</label>
+              <input type="text" id="formRoll" required placeholder="e.g., 2401330130251" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label for="formName">Student Name *</label>
+              <input type="text" id="formName" required placeholder="Full name">
+            </div>
+            <div class="form-group">
+              <label for="formCourse">Course *</label>
+              <input type="text" id="formCourse" required placeholder="e.g., B.Tech Computer Science">
+            </div>
+            <div class="form-group">
+              <label for="formSemester">Semester *</label>
+              <input type="text" id="formSemester" required placeholder="e.g., 3">
+            </div>
+            <div class="form-group">
+              <label>Subjects & Marks *</label>
+              <div id="subjectsContainer" class="subjects-container"></div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Student</button>
+              <button type="button" class="btn btn-secondary" id="formCancelBtn">Cancel</button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Delete Student?</h3>
+        <p>Are you sure you want to delete <strong id="deleteStudentName">—</strong>? This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+          <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>Student Result Management System • XML-Based Data Storage</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
